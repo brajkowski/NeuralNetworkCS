@@ -19,8 +19,11 @@ namespace NeuralNetworkCS
         private int lastLayerIndex;
         private Activation activation;
 
+        public double Accuracy { get; set; }
+
         public Network(List<int> sizes, Activation a)
         {
+            Accuracy = 0d;
             vSizes = sizes;
             activation = a;
             lastLayerIndex = vSizes.Count - 1;
@@ -159,7 +162,8 @@ namespace NeuralNetworkCS
         public int MnistTest(ref MnistData data)
         {
             int correct = 0;
-            for (int i = 0; i < data.TestLabels.Count; i++)
+            int total = data.TestLabels.Count;
+            for (int i = 0; i < total; i++)
             {
                 SetInputLayer(data.TestImages.Column(i));
                 FeedForward();
@@ -168,6 +172,8 @@ namespace NeuralNetworkCS
                     correct++;
                 }
             }
+            Console.WriteLine(correct / total);
+            this.Accuracy = (double)correct / (double)total;
             return correct;
         }
 
@@ -187,7 +193,7 @@ namespace NeuralNetworkCS
             for (int l = 1; l < vSizes.Count; l++)
                 for (int j = 0; j < vSizes[l]; j++)
                     for (int k = 0; k < vSizes[l - 1]; k++)
-                        bw.Write(mWeights[l][j, k]);
+                        bw.Write(mWeights[l][j,k]);
             for (int l = 1; l < vSizes.Count; l++)
                 for (int j = 0; j < vSizes[l]; j++)
                     bw.Write(mBiases[l][j]);
@@ -215,6 +221,76 @@ namespace NeuralNetworkCS
                 for (int j = 0; j < vSizes[l]; j++)
                     mBiases[l][j] = br.ReadSingle();
             ifs.Close();
+        }
+
+        public void SaveNetworkCSV()
+        {
+            // Weights file.
+            var ofs = new FileStream(@"network_weights.csv", FileMode.OpenOrCreate);
+            var sw = new StreamWriter(ofs);
+            var temp = "";
+            var header = "From layer" + "," + "From neuron" + "," + "To layer" + "," + "To neuron" + "," + "Weight";
+            sw.WriteLine(header);
+            for (int l = 1; l < vSizes.Count; l++)
+                for (int j = 0; j < vSizes[l]; j++)
+                    for (int k = 0; k < vSizes[l - 1]; k++)
+                    {
+                        temp = (l - 1).ToString() + "," + (k).ToString() + "," + (l).ToString() + "," + (j).ToString() + "," + mWeights[l][j,k].ToString();
+                        sw.WriteLine(temp);
+                    }
+            sw.Close();
+
+            // Biases file.
+            ofs = new FileStream(@"network_biases.csv", FileMode.OpenOrCreate);
+            sw = new StreamWriter(ofs);
+            temp = "";
+            header = "Layer" + "," + "Neuron" + "," + "Bias";
+            sw.WriteLine(header);
+            for (int l = 1; l < vSizes.Count; l++)
+                for (int j = 0; j < vSizes[l]; j++)
+                {
+                    temp = (l).ToString() + "," + (j).ToString() + "," + mBiases[l][j].ToString();
+                    sw.WriteLine(temp);
+                }
+            sw.Close();
+
+            // Statistics file.
+            ofs = new FileStream(@"network_stats.csv", FileMode.OpenOrCreate);
+            sw = new StreamWriter(ofs);
+            temp = "";
+
+            // Count all neurons.
+            int neuronCount = 0;
+            for (int l = 0; l < vSizes.Count; l++)
+                neuronCount += mNeurons[l].Count;
+
+            // Count hidden neurons.
+            int hiddenNeuronCount = 0;
+            for (int l = 1; l < vSizes.Count - 1; l++)
+                hiddenNeuronCount += mNeurons[l].Count;
+
+            // Count weights.
+            int weightCount = 0;
+            for (int l = 1; l < vSizes.Count; l++)
+                weightCount += mNeurons[l - 1].Count * mNeurons[l].Count;
+
+            // Count biases.
+            int biasCount = 0;
+            for (int l = 1; l < vSizes.Count; l++)
+                biasCount += mNeurons[l].Count;
+
+            temp = "Layout";
+            for (int l = 0; l < vSizes.Count; l++)
+            {
+                temp += "," + vSizes[l];
+            }
+            sw.WriteLine(temp);
+            sw.WriteLine("Total neurons" + "," + neuronCount);
+            sw.WriteLine("Hidden neurons" + "," + hiddenNeuronCount);
+            sw.WriteLine("Total weights" + "," + weightCount);
+            sw.WriteLine("Total biases" + "," + biasCount);
+            sw.WriteLine("Test accuracy" + "," + Accuracy);
+            sw.Close();
         }
     }
 }
