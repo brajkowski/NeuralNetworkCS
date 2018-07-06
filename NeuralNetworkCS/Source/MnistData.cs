@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using MathNet.Numerics.LinearAlgebra;
+using System.Drawing;
 
 namespace NeuralNetworkCS
 {
@@ -97,6 +98,42 @@ namespace NeuralNetworkCS
             LoadLabels(SetType.Test);
             LoadImages(SetType.Train);
             LoadLabels(SetType.Train);
+        }
+
+        public void CreateImage(Vector<float> vPixels, string path)
+        {
+            int counter = 0;
+            var image = new Bitmap(28, 28);
+            for (int cols = 0; cols < image.Height; cols++)
+                for (int rows = 0; rows < image.Width; rows++)
+                {
+                    int pixel = 255 - (int)(vPixels[counter] * 255); // Convert neuron value back to pixel value.
+                    image.SetPixel(cols, rows, Color.FromArgb(pixel, pixel,pixel));
+                    counter++;
+                }
+            image.RotateFlip(RotateFlipType.Rotate90FlipX);
+            image.Save(path);
+        }
+
+        public void CreateCSV(Vector<float> vPixels, string label, string path)
+        {
+            var ofs = new FileStream(path, FileMode.OpenOrCreate);
+            var sw = new StreamWriter(ofs);
+            string image_label = "Digit" + "," + label;
+            sw.WriteLine(image_label);
+            string header = "Row" + "," + "Column" + "," + "Pixel value";
+            sw.WriteLine(header);
+            string temp = "";
+            int counter = 0;
+            for (int cols = 0; cols < 28; cols++)
+                for (int rows = 0; rows < 28; rows++)
+                {
+                    var pixel = (int)(vPixels[counter] * 255);
+                    temp = rows + "," + cols + "," + pixel;
+                    sw.WriteLine(temp);
+                    counter++;
+                }
+            sw.Close();
         }
     }
 }
