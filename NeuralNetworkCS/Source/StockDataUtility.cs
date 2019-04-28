@@ -19,12 +19,15 @@ namespace NeuralNetworkCS
         private List<StockDataPoint> dataSet;
         private int index;
         private int sizeLimit;
-        public StockDataSet(List<StockDataPoint> dataPoints)
+        public StockDataSet(List<StockDataPoint> dataPoints, bool shouldNormalize)
         {
             index = 0;
             sizeLimit = dataPoints.Count - 1; // The last data point cannot be used to create a network data point.
             dataSet = dataPoints;
-            Normalize();
+            if (shouldNormalize)
+            {
+                Normalize();
+            }
         }
 
         public int getSize()
@@ -102,6 +105,16 @@ namespace NeuralNetworkCS
             ret.InputLayer = inputVector;
             ret.OutputLayer = outputVector;
             index++;
+            return ret;
+        }
+
+        public StockDataPoint RandomRemoveFromSet()
+        {
+            Random r = new Random();
+            int indexToRemove = r.Next(0, sizeLimit);
+            StockDataPoint ret = dataSet[indexToRemove];
+            dataSet.RemoveAt(indexToRemove);
+            sizeLimit--;
             return ret;
         }
     }

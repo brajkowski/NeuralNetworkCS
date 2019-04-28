@@ -164,7 +164,7 @@ namespace NeuralNetworkCS
             Console.WriteLine("Training Complete.");
         }
 
-        public void SGD(ref StockDataSet data, int epochs, int batchSize, float learningRate, bool output)
+        public void SGD(ref StockDataSet trainingData, ref StockDataSet testingData, int epochs, int batchSize, float learningRate, bool output)
         {
             MathNet.Numerics.Control.UseSingleThread(); // Single thread is optimal over multithreading.
 
@@ -180,7 +180,7 @@ namespace NeuralNetworkCS
 
             for (int i = 0; i < epochs; i++)
             {
-                StockDataForNetwork networkData = data.GetNextNetworkData();
+                StockDataForNetwork networkData = trainingData.GetNextNetworkData();
                 int j = 0;
                 while (networkData != null)
                 {
@@ -208,11 +208,11 @@ namespace NeuralNetworkCS
                             mSumB[l].Clear();
                         }
                     }
-                    networkData = data.GetNextNetworkData();
+                    networkData = trainingData.GetNextNetworkData();
                     j++;
                 }
-                if (output == true) Console.WriteLine("Epoch {0}: {1} / {2}", i, StockTest(ref data), data.getSize());
-                data.Reset();
+                if (output == true) Console.WriteLine("Epoch {0}: {1} / {2}", i, StockTest(ref testingData), testingData.getSize());
+                trainingData.Reset();
             }
             Console.WriteLine("Training Complete.");
         }
@@ -257,7 +257,7 @@ namespace NeuralNetworkCS
                     continue;
                 }
             }
-            Console.WriteLine(correct / total);
+            Console.WriteLine("{0} / {1}", correct, total);
             this.Accuracy = (double)correct / (double)total;
             data.Reset();
             return correct;
@@ -290,9 +290,9 @@ namespace NeuralNetworkCS
         /// Loads a binary output file of the network of the following structure:
         /// <para>Number of layers, neurons in each layer, weights, and then biases.</para>
         /// </summary>
-        public void LoadNetwork()
+        public void LoadNetwork(string path)
         {
-            var ifs = new FileStream(@"network.dat", FileMode.Open);
+            var ifs = new FileStream(path, FileMode.Open);
             var br = new BinaryReader(ifs);
             var layers = br.ReadInt32();
             var tempSizes = new List<int>();
