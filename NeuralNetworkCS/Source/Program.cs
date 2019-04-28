@@ -7,24 +7,25 @@ namespace NeuralNetworkCS
     {
         static void Main()
         {
-            var mnistData = new MnistData();
-            mnistData.LoadAll();
-            var sizes = new List<int> { 784, 30, 30, 10 };
-            var net = new Network(sizes,Activation.Sigmoid);
-            //net.LoadNetwork();
-            //Console.WriteLine(net.MnistTest(ref mnistData));
-            net.SGD(ref mnistData,3,10,3f,true);
-            net.SaveNetwork();
-            //net.SaveNetworkCSV();
-            /*
-            for(int i = 0; i < 10; i++)
+            //var mnistData = new MnistData();
+            //mnistData.LoadAll();
+            //var sizes = new List<int> { 784, 30, 10 };
+            //var net = new Network(sizes,Activation.Sigmoid);
+            ////net.LoadNetwork();
+            //net.SGD(ref mnistData,3,10,3f,true);
+            //net.SaveNetwork();
+            ////net.SaveNetworkCSV();
+            //Console.WriteLine("End of Main. Press any key...");
+            //Console.ReadKey();
+            List<StockDataPoint> dataPoints = StockDataUtility.ReadStockFile(@"aa.us.csv");
+            StockDataSet trainingSet = new StockDataSet(dataPoints);
+            StockDataForNetwork networkData = trainingSet.GetNextNetworkData();
+            while (networkData != null)
             {
-                string path = "VisualizedImages/" + "d" + mnistData.TestLabels[i] + "_image" + i + ".png";
-                mnistData.CreateImage(mnistData.TestImages.Column(i),path);
+                Console.WriteLine(networkData.OutputLayer);
+                networkData = trainingSet.GetNextNetworkData();
             }
-            */
-            //mnistData.CreateCSV(mnistData.TestImages.Column(0), mnistData.TestLabels[0].ToString(), "mnist_image_0.csv");
-            Console.WriteLine("End of Main. Press any key...");
+            //Console.WriteLine(dataPoints.Count);
             Console.ReadKey();
         }
     }
