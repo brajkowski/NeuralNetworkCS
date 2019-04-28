@@ -164,6 +164,58 @@ namespace NeuralNetworkCS
             Console.WriteLine("Training Complete.");
         }
 
+        public void SGD(ref StockDataSet data, int epochs, int batchSize, float learningRate, bool output)
+        {
+            MathNet.Numerics.Control.UseSingleThread(); // Single thread is optimal over multithreading.
+
+            Console.WriteLine("Training...");
+
+            for (int l = 0; l < vSizes.Count; l++)
+            {
+                mSumW[l].Clear();
+                mSumB[l].Clear();
+            }
+
+            RandomizeParameters();
+
+            for (int i = 0; i < epochs; i++)
+            {
+                StockDataForNetwork networkData = data.GetNextNetworkData();
+                int j = 0;
+                while (networkData != null)
+                {
+                    SetInputLayer(networkData.InputLayer);
+                    FeedForward();
+                    SetOutputLayer(networkData.OutputLayer);
+                    OutputError();
+                    Backprop();
+
+                    // Perform summation calculations over the training images.
+                    for (int l = lastLayerIndex; l > 0; l--)
+                    {
+                        mSumW[l] += mError[l].ToColumnMatrix() * mNeurons[l - 1].ToRowMatrix();
+                        mSumB[l] += mError[l];
+                    }
+
+                    // Update the weights and biases after the mini-batch has been processed.
+                    if (j % batchSize == 0 && j > 0)
+                    {
+                        for (int l = 0; l < vSizes.Count; l++)
+                        {
+                            mWeights[l] += mSumW[l].Multiply(-learningRate / batchSize);
+                            mBiases[l] += mSumB[l].Multiply(-learningRate / batchSize);
+                            mSumW[l].Clear();
+                            mSumB[l].Clear();
+                        }
+                    }
+                    networkData = data.GetNextNetworkData();
+                    j++;
+                }
+                //if (output == true) Console.WriteLine("Epoch {0}: {1} / {2}", i, MnistTest(ref data), data.TestLabels.Count);
+            }
+            Console.WriteLine("Training Complete.");
+        }
+
         public int MnistTest(ref MnistData data)
         {
             int correct = 0;
