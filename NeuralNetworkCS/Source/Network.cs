@@ -183,7 +183,7 @@ namespace NeuralNetworkCS
         /// </summary>
         public void SaveNetwork()
         {
-            var ofs = new FileStream(@"network.dat", FileMode.OpenOrCreate);
+            var ofs = new FileStream(@"network2.dat", FileMode.OpenOrCreate);
             var bw = new BinaryWriter(ofs);
             bw.Write(vSizes.Count);
             for (int i = 0; i < vSizes.Count; i++)

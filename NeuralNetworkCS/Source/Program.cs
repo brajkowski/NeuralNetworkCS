@@ -9,12 +9,12 @@ namespace NeuralNetworkCS
         {
             var mnistData = new MnistData();
             mnistData.LoadAll();
-            var sizes = new List<int> { 784, 30, 10 };
+            var sizes = new List<int> { 784, 30, 30, 10 };
             var net = new Network(sizes,Activation.Sigmoid);
             //net.LoadNetwork();
             //Console.WriteLine(net.MnistTest(ref mnistData));
-            //net.SGD(ref mnistData,30,10,3f,true);
-            //net.SaveNetwork();
+            net.SGD(ref mnistData,3,10,3f,true);
+            net.SaveNetwork();
             //net.SaveNetworkCSV();
             /*
             for(int i = 0; i < 10; i++)
@@ -23,7 +23,7 @@ namespace NeuralNetworkCS
                 mnistData.CreateImage(mnistData.TestImages.Column(i),path);
             }
             */
-            mnistData.CreateCSV(mnistData.TestImages.Column(0), mnistData.TestLabels[0].ToString(), "mnist_image_0.csv");
+            //mnistData.CreateCSV(mnistData.TestImages.Column(0), mnistData.TestLabels[0].ToString(), "mnist_image_0.csv");
             Console.WriteLine("End of Main. Press any key...");
             Console.ReadKey();
         }
