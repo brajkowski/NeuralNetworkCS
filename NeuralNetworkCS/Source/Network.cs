@@ -211,8 +211,8 @@ namespace NeuralNetworkCS
                     networkData = data.GetNextNetworkData();
                     j++;
                 }
-                data.Reset();
                 if (output == true) Console.WriteLine("Epoch {0}: {1} / {2}", i, StockTest(ref data), data.getSize());
+                data.Reset();
             }
             Console.WriteLine("Training Complete.");
         }
