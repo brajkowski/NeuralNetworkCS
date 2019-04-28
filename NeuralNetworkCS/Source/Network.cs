@@ -211,7 +211,8 @@ namespace NeuralNetworkCS
                     networkData = data.GetNextNetworkData();
                     j++;
                 }
-                //if (output == true) Console.WriteLine("Epoch {0}: {1} / {2}", i, MnistTest(ref data), data.TestLabels.Count);
+                data.Reset();
+                if (output == true) Console.WriteLine("Epoch {0}: {1} / {2}", i, StockTest(ref data), data.getSize());
             }
             Console.WriteLine("Training Complete.");
         }
@@ -231,6 +232,34 @@ namespace NeuralNetworkCS
             }
             Console.WriteLine(correct / total);
             this.Accuracy = (double)correct / (double)total;
+            return correct;
+        }
+
+        public int StockTest(ref StockDataSet data)
+        {
+            data.Reset();
+            int correct = 0;
+            int total = data.getSize();
+            for (int i = 0; i < total; i++)
+            {
+                StockDataForNetwork networkData = data.GetNextNetworkData();
+                SetInputLayer(networkData.InputLayer);
+                FeedForward();
+                float predictedValue = mNeurons[lastLayerIndex][0];
+                if (predictedValue >= 0.5f && networkData.OutputLayer[0] >= 0.5f)
+                {
+                    correct++;
+                    continue;
+                }
+                if (predictedValue < 0.5f && networkData.OutputLayer[0] < 0.5f)
+                {
+                    correct++;
+                    continue;
+                }
+            }
+            Console.WriteLine(correct / total);
+            this.Accuracy = (double)correct / (double)total;
+            data.Reset();
             return correct;
         }
 

@@ -26,6 +26,16 @@ namespace NeuralNetworkCS
             dataSet = dataPoints;
             Normalize();
         }
+
+        public int getSize()
+        {
+            return sizeLimit;
+        }
+
+        public void Reset()
+        {
+            index = 0;
+        }
         
         private void Normalize()
         {
