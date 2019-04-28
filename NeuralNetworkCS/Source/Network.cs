@@ -96,6 +96,11 @@ namespace NeuralNetworkCS
             }
         }
 
+        public void SetOutputLayer(Vector<float> v)
+        {
+            v.CopyTo(vY);
+        }
+
         public void OutputError()
         {
             mError[lastLayerIndex] = mNeurons[lastLayerIndex].Subtract(vY);
